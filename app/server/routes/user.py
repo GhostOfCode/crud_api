@@ -18,17 +18,16 @@ from ..models.user import (
 router = APIRouter()
 
 
-@router.post("/", response_description="User data added into the database",
-             description="Add new User")
+@router.post("/", description="Add new User")
 async def add_user_data(user: UserSchema = Body(...)):
     user = jsonable_encoder(user)
     new_user = await add_user(user)
     if new_user:
         return response_model(new_user, "User added successfully.")
-    return error_response_model()
+    return error_response_model("An error occurred.", 404, "user already exist.")
 
 
-@router.get("/", response_description="Users retrieved", description="Return all users")
+@router.get("/", description="Return data of all users")
 async def get_users():
     users = await retrieve_users()
     if users:
@@ -36,7 +35,7 @@ async def get_users():
     return response_model(users, "Empty list returned")
 
 
-@router.get("/{id}", response_description="User data retrieved", description="Return all User's data")
+@router.get("/{id}", description="Return all User's data")
 async def get_user_data(id: str):
     user = await retrieve_user(id)
     if user:
@@ -44,7 +43,7 @@ async def get_user_data(id: str):
     return error_response_model("An error occurred.", 404, "user doesn't exist.")
 
 
-@router.put("/{id}", response_description="User data updated", description="Update User data by using User ID")
+@router.put("/{id}", description="Update User data by using User ID")
 async def update_user_data(id: str, req: UpdateUserModel = Body(...)):
     req = {k: v for k, v in req.dict().items() if v is not None}
     updated_user = await update_user(id, req)
@@ -60,8 +59,7 @@ async def update_user_data(id: str, req: UpdateUserModel = Body(...)):
     )
 
 
-@router.delete("/{id}", response_description="User data deleted from the database",
-               description="Remove User by using User ID")
+@router.delete("/{id}", description="Remove User by using User ID")
 async def delete_user_data(id: str):
     deleted_user = await delete_user(id)
     if deleted_user:

@@ -1,17 +1,18 @@
 import motor.motor_asyncio
 from bson.objectid import ObjectId
+from .config import MONGO_DETAILS
 
-MONGO_DETAILS = "mongodb://localhost:27017"
 
 client = motor.motor_asyncio.AsyncIOMotorClient(MONGO_DETAILS)
 
+#  Collection users_collection as a DBS Users will be automatically created by first execution of request
 database = client.users
-
 user_collection = database.get_collection("users_collection")
 
 
 def user_helper(user) -> dict:
     return {
+        "id": str(user["_id"]),
         "username": user["username"],
         "first_name": user["first_name"],
         "last_name": user["last_name"],
@@ -20,7 +21,7 @@ def user_helper(user) -> dict:
 
 
 # Retrieve all users present in the database
-async def retrieve_users():
+async def retrieve_users() -> list:
     users = []
     async for user in user_collection.find():
         users.append(user_helper(user))
